@@ -1,5 +1,5 @@
 ---
-title: "Stadistical Inference - Course Project - Part 1 - Simulation Exercise"
+title: "Statistical Inference - Course Project - Part 1 - Simulation Exercise"
 author: "Jose Maria Vilaverde (jmvilaverde)"
 date: "Saturday, May 23, 2015"
 output: pdf_document
@@ -11,26 +11,26 @@ output: pdf_document
 
 In this report is investigated the exponential distribution in R and compare it with the Central Limit Theorem.
 
-The CLT states that the distribution of averages of iid variables (properly normalized) becomes that of a stadard normal as the sample size increases.
+The CLT states that the distribution of averages of iid variables (properly normalized) becomes that of a standard normal as the sample size increases.
 
 The result is that $\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}}  =  \frac{\sqrt{n}(\bar{X}_n - \mu)}{sd} = \frac{Estimate  -  Mean  of  estimate}{Std.  Err.  if  estimate}$ 
 has a distribution like that of a standard normal for large n.
 
 **Conditions for investigation**
 
-For this investigation, the exponential distribution is simulated with R function rexp(n, lambda), where lambda is the rate parameter.
-
-The mean of estimate ($\mu$) of exponential distribution is $\frac{1}{\lambda}$ and the standard deviation ($\sigma$) is also $\frac{1}{\lambda}$.
-Lambda ($\lambda$) is set to 0.2 for all simulations. 
-
-> * $\lambda$ = 0.2
-> * $\mu = \frac{1}{\lambda}=\frac{1}{0.2}=5$
-> * $\sigma = \frac{1}{\lambda}=\frac{1}{0.2}=5$
-
+For this investigation, the exponential distribution is simulated with R function rexp(sampleSize, lambda), where lambda is the rate parameter and sampleSize is equal to the sample size.
 
 The distribution of averages of 40 exponentials are investigated in a thousand simulations.
 
-***
+###Parameters:
+* The sample size is 1000.
+* The mean of estimate ($\mu$) of exponential distribution is $\frac{1}{\lambda}$: * $\mu = \frac{1}{\lambda}=\frac{1}{0.2}=5$
+* The standard deviation ($\sigma$) is also $\frac{1}{\lambda}$: $\sigma = \frac{1}{\lambda}=\frac{1}{0.2}=5$
+* Lambda ($\lambda$) is set to 0.2 for all simulations: $\lambda$ = 0.2 
+* The number of exponentials used per average simulation is 40 exponentials: n = 40
+* The number of simulations is one thousand: simulations = 1000
+
+\pagebreak
 
 #Steps
 
@@ -38,214 +38,160 @@ The distribution of averages of 40 exponentials are investigated in a thousand s
 
 ###Sample mean:
 
-Is obtained a sample of one thousand exponentials and is calculated the sample mean $\bar{X}_n = \frac{\Sigma_{i=1}^n X_i}{n}$
+Is obtained a sample of one thousand exponentials and is calculated the sample mean:
 
-> **Parameters**: $\lambda$ = 0.2, n = 1000
+> **Parameters**: $\lambda$ = 0.2, sampleSize = 1000, number of exponentials per mean n = 40
 
 ```{r, echo=FALSE}
-##Code for calculate the sample mean:
+##Code 1: Calculate the sample
 lambda = 0.2
-#size of the sample
-sampleN = 1000 
+n = 40 #number of means
+sampleSize = 1000 #size of the sample
 sample = NULL
-for (i in 1:sampleN) sample = c(sample, rexp(sampleN,lambda))
-#Mean of the sample
+#for (i in 1:sampleSize) sample = c(sample, rexp(sampleSize,lambda))
+for (i in 1 : sampleSize) sample = c(sample, mean(rexp(n,lambda)))
+
+#Code 2: Calculate the mean of the sample
 sampleMean = mean(sample)
 ```
 
-> **Sample mean**: $\bar{X}_n = \frac{\Sigma_{i=1}^{n} X_i}{n}=$ `r sampleMean` **_(View Code 1./Figure 1.)_**
+> **Sample mean**: $\bar{X}_n = \frac{\Sigma_{i=1}^{n=1000} X_i}{n}=$ `r sampleMean` **_(View Code 1 & 2)_**
 
 ###Theoretical mean:
 
-For calculate the theoretical mean of the distribution we use the Central Limit Theorem formula:
+Is calculated the theoretical mean of the distribution:
 
-> **CLT Formula**: $\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}}  =  \frac{\sqrt{n}(\bar{X}_n - \mu)}{sd}$
-
-> **For parameters**: n = 40, $\lambda = 0.2$, $\mu = \frac{1}{\lambda}$, $\sigma = \frac{1}{\lambda}$, $\bar{X}_n =$ `r sampleMean`
+> **Parameters**: $\lambda = 0.2$, $\mu = \frac{1}{\lambda}$
 
 ```{r, echo=FALSE}
-#Number of elements to use each simulation
-n = 40
-#Number of simulations
-simulations = 1000
+#Code 3: Calculate the theoretical mean
 lambda = 0.2
 mu = 1/lambda
-sd = 1/lambda
-sampleCLT = NULL
-for (i in 1:simulations) sampleCLT = c(sampleCLT, (sqrt(n)*(mean(sample(sample, n))-mu))/(sd))
-theoMean = mean(sampleCLT)
+theoMean = mu
 ```
 
-Is obtained the **theoretical mean** of the distribution: $\frac{\sqrt{n}(\bar{X}_n - \mu)}{sd} =$ `r theoMean` **_(View Code 2./Figure 2._**
+> **Theoretical mean** of the distribution: $\mu =\frac{1}{\lambda}=\frac{1}{0.2}=$ `r theoMean` **_(View Code 3)_**
 
-###Comparation: **_(View Figure 3.)_**
+###Comparation:**_(View Figure 1)_**
 > Sample mean    | Theoretical mean
 > -------------- | ----------------
 > `r sampleMean` | `r theoMean`
-
-***
 
 ##2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
 
 ###Sample variance:
 
-> **Formula**:Var($\bar{X})=\sigma^2$
-
 ```{r, echo=FALSE}
-##Code for calculate the sample variance:
-sampleVar = sd(sample)^2
+#Code 4: Calculate the sample variance
+n=40
+sampleVar = sqrt(sum((sample-sampleMean)^2)/(n-1))
 ```
 
-> **Sample variance**: Var($\bar{X})=\sigma^2/n=$ `r sampleVar` **_View Code 3._**
-
-
+> **Sample variance**: Var($\bar{X})=\sqrt{\frac{\Sigma_{i=1}{(X_i - \bar{X})^2}}{n-1}}=$ `r sampleVar` **_(View Code 4)_**
 
 ### Theoretical variance of the distribution:
-
-> **Formula**: Var($\bar{X})=\sigma^2/n$
 
 > **Parameters**: $\sigma = \frac{1}{\lambda}$, $\lambda$ = 0.2
 
 ```{r, echo=FALSE}
+#Code 5: Calculate Theoretical variance.
 n = 40
 lambda = 0.2
-sigma = (1/lambda)
-theoVar = sigma^2/n
+sd = (1/lambda)
+theoVar = sd^2/sqrt(n)
 ```
 
-> **Theoretical variance**: Var($\bar{X})=\sigma^2/n=(1/\lambda)^2/n=$ `r theoVar` **_View Code 4._**
+> **Theoretical variance**: $Var(\bar{X})=\frac{\sigma^2}{\sqrt{n}}=\frac{(\frac{1}{\lambda})^2}{\sqrt{n}}=\frac{(\frac{1}{0.2})^2}{\sqrt{40}}=$ `r theoVar` **_(View Code 5)_**
 
-###Comparation: **_(View Figure 3.)_**
+###Comparation: **_(View Figure 2)_**
 
 > Sample variance | Theoretical variance
 > --------------- | ----------------
 > `r sampleVar`   | `r theoVar`
 
-***
-
 ##3. Show that the distribution is approximately normal.
 
-In point 3, focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials. 
+The CLT states that the distribution of averages of iid variables (properly normalized) becomes that of a standard normal as the sample size increases.
 
-**_(View figure 4.)_**
+View **_figure 3_** for comparative between normalized distribution of averages of iid variables and standard normal. In this comparative is analyzed the relation between expected quantiles and quantiles calculated for the normalized distribution of averages.
 
-***
+The distribution aproximates to expected values.
 
-#Simulations
+\pagebreak
+
+#Simulations and figures
 
 ##1. Sample mean and comparation with the theoretical mean of the distribution.
-
-###Sample mean:
-
-**_Code 1:_**
-
-```{r}
-#Calculate the sample
+```{r, eval=FALSE}
+##Code 1: Calculate the sample
 lambda = 0.2
-sampleN = 1000 #size of the sample
+n = 40 #number of means
+sampleSize = 1000 #size of the sample
 sample = NULL
-for (i in 1:sampleN) sample = c(sample, rexp(sampleN,lambda))
+#for (i in 1:sampleSize) sample = c(sample, rexp(sampleSize,lambda))
+sample = for (i in 1 : sampleSize) sample = c(sample, mean(rexp(n=40,lambda)))
 
-#Mean of the sample
+#Code 2: Calculate the mean of the sample
 sampleMean = mean(sample)
-
-#Generation of graphic of sample and sample mean
-# hist(sample/sampleN, n = sampleN, main="Distribution of sample of 1000 elements", xlab="Exponential value")
-# abline(v=sampleMean, col="red")
-#library(ggplot2)
-#g <- ggplot(data.frame(x = 1:sampleN, y = sample), aes(x = x, y = y))
-#g <- g + geom_hline(yintercept = 0) + geom_line(size = 2)
-#g <- g + labs(title = "Distribution of sample of 1000 elements", x ="Exponential value")
-#g
 ```
+sampleMean = `r sampleMean`
 
-**_Figure 1._**
-
-
-###Theoretical mean:
-
-**_Code 2:_**
-
-```{r}
-#Calculate the distribution of the averages
-n = 40 #Number of elements to use each simulation
-simulations = 1000 #Number of simulations
+```{r, eval=FALSE}
+#Code 3: Calculate the theoretical mean
 lambda = 0.2
 mu = 1/lambda
-sd = 1/lambda
-sampleCLT = NULL
-for (i in 1:simulations) sampleCLT = c(sampleCLT, (sqrt(n)*(mean(sample(sample, n))-mu))/(sd))
-theoMean = mean(sampleCLT)
-
-#Generation of graphic of sample and sample mean
-hist(sampleCLT, n=50, main="Distribution of sample of 1000 iterations - 40 elements each iteration", xlab="Mean of exponential values per iteration")
-abline(v=theoMean, col="red")
+theoMean = mu
 ```
+theoMean = `r theoMean`
 
-**_Figure 2._**
+```{r, fig.width=4.5, fig.height=3.5, fig.align='center'}
+#Code Figure 1: Generation of graphic of sample, sample mean and theoretical mean
+hist(sample, main="Distribution of sample", xlab="Exponential values")
+title(sub="Figure 1.")
+legend("topright", legend = c("Sample mean", "Theoretical mean"), col = c("red", "blue"), pch="l", cex=0.5)
+abline(v=sampleMean, col="red")
+abline(v=theoMean, col="blue")
+```
 
 ##2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
 
-**_Code 4 - Sample variance:_**
-
-```{r}
-#Calculate the sample variance:
-sampleVar = sd(sample)^2
+```{r, eval=FALSE}
+#Code 4: Sample variance:
+n=40
+sampleVar = sqrt(sum((sample-sampleMean)^2)/(n-1))
 ```
+sampleVar = `r sampleVar`
 
-**_Code 5 - Theoretical variance of the distribution:_**
-
-```{r}
+```{r, eval=FALSE}
+#Code 5: Theoretical variance of the distribution
 n = 40
 lambda = 0.2
 sigma = (1/lambda)
-theoVar = sigma^2/n
+theoVar = sigma^2/sqrt(n)
+```
+theoVar = `r theoVar`
+
+```{r, fig.width=4.5, fig.height=3.5, fig.align='center', warning=FALSE}
+#Code Figure 2: Comparative of variances
+#Generate histogram
+h <- hist(sample, main="Comparative of variance", 
+     xlab="Exponential values")
+title(sub="Figure 2.")
+#Calculate normal distribution for the sample
+x <- seq(min(sample),max(sample),length=1000)
+y <- dnorm(x,mean=sampleMean, sd=1)
+y <- y*(h$counts/h$density)
+#Print normal distribution
+lines(x, y, col="red", lwd=1)
+abline(v=theoMean, col="green")
 ```
 
+##3. Show that the distribution is approximately normal.
 
-**_Code ? - Comparation of variances:_**
-
-```{r}
-plot(c(sampleVar, theoVar), c(0,0), type = "h", xlim=c(theoVar-2, theoVar+2), ylim = c(0,1),
-     main= "Variance values", xlab="Variance", ylab=NA)
-legend("topright", legend=c("Sample Variance", "Theorical Variance"), col=c("red", "blue"), pch = c(1,1))
-abline(v= sampleVar, col = "red")
-abline(v= theoVar, col = "blue")
+```{r, fig.width=3, fig.height=3, warning=FALSE}
+#Code Figure 3: Comparative qqplot between large collection of random exponentials 
+#Generate figure
+qqnorm(sample, main = "Averages of exponentials")
+qqline(sample, col="red")
 ```
 
-**_Figure ? - Comparation of variances._**
-
-3. Show that the distribution is approximately normal.
-
-In point 3, focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials. 
-
-**_Code 6._**
-
-```{r}
-x   <- seq(mu-2*sd,mu+2*sd,length=1000)
-y   <- dnorm(x,mean=mu, sd=sd)
-plot(x,y, type="l", lwd=1)
-#Simple distribution normalized
-lambda = 0.2
-mu = 1/lambda
-sd = 1/lambda
-#size of the sample
-sampleN = 1000 
-sample = NULL
-for (i in 1:sampleN) sample = c(sample, (rexp(sampleN,lambda)-mu)/sd)
-#Mean of the sample
-sampleMean = mean(sample)
-hist(sample, n = 50, main="Distribution of sample of 1000 elements", xlab="Exponential value")
-abline(v=sampleMean, col="red")
-##Sample of averages
-n = 40
-lambda = 0.2
-mu = 1/lambda
-sd = 1/lambda
-sampleCLT = NULL
-for (i in 1:sampleN) sampleCLT = c(sampleCLT, (sqrt(n)*(mean(sample(sample, n))-mu))/(sd))
-theoMean = mean(sampleCLT)
-hist(sampleCLT, n=50, main="Distribution of sample of 1000 iterations - 40 elements each iteration", xlab="Mean of exponential values per iteration")
-abline(v=theoMean, col="red")
-curve(dnorm(x,mean=mu, sd=sd))
-```

@@ -1,0 +1,181 @@
+---
+title: "Statistical Inference - Course Project - Part 2 - ToothGrowth data"
+author: "Jose Maria Vilaverde (jmvilaverde)"
+date: "Saturday, May 23, 2015"
+output: pdf_document
+---
+
+***
+
+#Overview
+
+Analyze the ToothGrowth data in the R datasets package. 
+ 
+In this investigation are presented some hypothesis about influence in tooth growth in guinea pigs. The hypothesis are based on three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+#Simulation
+
+##Load the ToothGrowth data and perform some basic exploratory data analyses
+
+```{r}
+data(ToothGrowth)
+names(ToothGrowth)
+str(ToothGrowth)
+```
+
+##Provide a basic summary of the data.
+
+```{r}
+summary(ToothGrowth)
+```
+
+
+##Obtains all the groups from the data:
+```{r}
+GroupOJ05 <- ToothGrowth[ToothGrowth$supp == "OJ"&ToothGrowth$dose == 0.5,]$len
+GroupOJ1 <- ToothGrowth[ToothGrowth$supp == "OJ"&ToothGrowth$dose == 1,]$len
+GroupOJ2 <- ToothGrowth[ToothGrowth$supp == "OJ"&ToothGrowth$dose == 2,]$len
+GroupVC05 <- ToothGrowth[ToothGrowth$supp == "VC"&ToothGrowth$dose == 0.5,]$len
+GroupVC1 <- ToothGrowth[ToothGrowth$supp == "VC"&ToothGrowth$dose == 0.5,]$len
+GroupVC2 <- ToothGrowth[ToothGrowth$supp == "VC"&ToothGrowth$dose == 0.5,]$len
+```
+
+##Initial analysis
+
+### Analysis by supp
+```{r}
+orangeJuiceGroup <- ToothGrowth[ToothGrowth$supp == "OJ",]$len
+vitaminCGroup <- ToothGrowth[ToothGrowth$supp == "VC",]$len
+difference <- vitaminCGroup - orangeJuiceGroup
+mn <- mean(difference)
+s <- sd(difference)
+```
+
+The mean of growth for guinea pigs that received Orange Juice was: `r mean(orangeJuiceGroup)`
+
+The mean of growth for guinea pigs that received Vitamin C was: `r mean(vitaminCGroup)`
+
+The mean of difference Vitamin C Group - Orange Juice Group is: `r mn`
+
+The standard deviation of difference Vitamin C Group - Orange Juice Group is: `r s`
+
+### Analysis by dose
+```{r}
+Group05 <- ToothGrowth[ToothGrowth$dose == 0.5,]$len
+Group1 <- ToothGrowth[ToothGrowth$dose == 1,]$len
+Group2 <- ToothGrowth[ToothGrowth$dose == 2,]$len
+difference1to05 <- Group1 - Group05
+mn1to05 <- mean(difference1to05)
+s1to05 <- sd(difference1to05)
+
+difference2to05 <- Group2 - Group05
+mn2to05 <- mean(difference2to05)
+s2to05 <- sd(difference2to05)
+
+difference2to1 <- Group2 - Group1
+mn2to1 <- mean(difference2to1)
+s2to1 <- sd(difference2to1)
+```
+
+The mean of growth for guinea pigs that received a dose of 0.5 is: `r mean(Group05)`
+
+The mean of growth for guinea pigs that received a dose of 1 is: `r mean(Group1)`
+
+The mean of growth for guinea pigs that received a dose of 2 is: `r mean(Group2)`
+
+
+The mean of difference dose of 1 - dose of 0.5 is: `r mn1to05`
+
+The standard deviation of difference dose of 1 - dose of 0.5 is is: `r s1to05`
+
+##Hyphotesis
+
+###Hyphotesis: $H_0 : \mu_{Orange Juice} > \mu_{vitamin C}$
+
+```{r}
+t.test(orangeJuiceGroup, vitaminCGroup, alternative = "less", paired = FALSE)
+```
+
+The hypothesis the group that received Orange Juice growth was higher growth is accepted with a p = 0.9697.
+
+
+###Hyphotesis: $H_0 : \mu_{dose=1} > \mu_{dose=0.5}$
+
+```{r}
+t.test(Group1,Group05, alternative = "less",paired=FALSE)
+```
+
+The hypothesis the group that received dose 1 growth more than group of dose 0.5 is accepted with a p = 1.
+
+
+###Hyphotesis: $H_0 : \mu_{dose=2} > \mu_{dose=0.5}$
+
+```{r}
+t.test(Group2,Group05, alternative = "less",paired=FALSE)
+```
+
+The hypothesis the group that received dose 2 growth more than group of dose 0.5 is accepted with a p = 1.
+
+
+###Hyphotesis: $H_0 : \mu_{dose=2} > \mu_{dose=1}$
+
+```{r}
+t.test(Group2,Group1, alternative = "less",paired=FALSE)
+```
+
+The hypothesis the group that received dose 2 growth more than group of dose 1 is accepted with a p = 1.
+
+
+```{r}
+library(dplyr)
+arrange(summarize(group_by(ToothGrowth, dose, supp), meanGroup = mean(len), sdGroup = sd(len)), meanGroup)
+```
+
+By previous analysis, hypothesis and this summary seems that higher dose implies higher mean of growth, and at same dose Orange Juice have higher mean than Vitamin C, except for dose 2.0.
+
+Let's test same dose and Vitamin C vs. Orange Juice:
+
+##Confidence Test for Oranje Juice 0.5 - Vitamin C 0.5
+
+###Hyphotesis: $H_0 : \mu_{OJ,0.5} > \mu_{VC,0.5}$
+
+```{r}
+#Oranje Juice 0.5 - Vitamin C 0.5
+t.test(GroupOJ05, GroupVC05, alternative = "less", paired = FALSE)
+```
+
+The hypothesis that, with same dose 0.5, the group that received Orange Juice growth more than group Vitamin C is accepted with p-value = 0.9968.
+
+
+##Confidence Test for Orange Juice 1 - Vitamin C 1
+
+###Hyphotesis: $H_0 : \mu_{OJ,1} > \mu_{VC,1}$
+
+```{r}
+#Oranje Juice 1 - Vitamin C 1
+t.test(GroupOJ1, GroupVC1, alternative = "less", paired = FALSE)
+```
+
+The hypothesis that, with same dose 1, the group that received Orange Juice growth more than group Vitamin C is accepted with  p-value = 1.
+
+##Confidence Test for Orange Juice 2 - Vitamin C 2
+
+In this case the mean for Vitamin C is greater than Orange Juice, try two hypothesis:
+
+###Hyphotesis: $H_0 : \mu_{OJ,2} > \mu_{VC,2}$
+
+```{r}
+#Oranje Juice 2 - Vitamin C 2
+t.test(GroupOJ2, GroupVC2, alternative = "less", paired = FALSE)
+```
+
+The hypothesis that, with same dose 2, the group that received Orange Juice growth more than group Vitamin C is accepted with  p-value = 1.
+
+###Hyphotesis: $H_1 : \mu_{OJ,2} < \mu_{VC,2}$
+
+```{r}
+#Oranje Juice 2 - Vitamin C 2
+t.test(GroupOJ2, GroupVC2, alternative = "greater", paired = FALSE)
+```
+
+The hypothesis that, with same dose 1, the group that received Vitamin C growth more than group Orange Juice is rejected with p-value = 6.811e-12.
